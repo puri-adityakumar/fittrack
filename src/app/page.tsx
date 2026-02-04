@@ -1,65 +1,126 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import { StatsCards } from "@/components/dashboard/stats-cards";
+import { CalorieChart } from "@/components/dashboard/calorie-chart";
+import { ExerciseHistory } from "@/components/dashboard/exercise-history";
+import { WeeklyOverview } from "@/components/dashboard/weekly-overview";
+import { OnboardingDialog } from "@/components/onboarding/onboarding-dialog";
+import { Button } from "@/components/ui/button";
+import { MessageSquare, Dumbbell } from "lucide-react";
+import Link from "next/link";
+
+// Mock data for demonstration (will be replaced with Convex queries)
+const mockWeeklyData = [
+  { date: "2026-01-29", calories: 1850, protein: 120, exerciseCount: 3 },
+  { date: "2026-01-30", calories: 2100, protein: 140, exerciseCount: 4 },
+  { date: "2026-01-31", calories: 1950, protein: 130, exerciseCount: 2 },
+  { date: "2026-02-01", calories: 2200, protein: 150, exerciseCount: 5 },
+  { date: "2026-02-02", calories: 1800, protein: 110, exerciseCount: 3 },
+  { date: "2026-02-03", calories: 2050, protein: 135, exerciseCount: 4 },
+  { date: "2026-02-04", calories: 800, protein: 55, exerciseCount: 2 },
+];
+
+const mockExercises = [
+  {
+    id: "1",
+    exerciseName: "Bench Press",
+    sets: 3,
+    reps: 10,
+    weight: 60,
+    date: "2026-02-04",
+  },
+  {
+    id: "2",
+    exerciseName: "Squats",
+    sets: 4,
+    reps: 8,
+    weight: 80,
+    date: "2026-02-04",
+  },
+  {
+    id: "3",
+    exerciseName: "Deadlift",
+    sets: 3,
+    reps: 6,
+    weight: 100,
+    date: "2026-02-03",
+  },
+  {
+    id: "4",
+    exerciseName: "Shoulder Press",
+    sets: 3,
+    reps: 12,
+    weight: 30,
+    date: "2026-02-03",
+  },
+];
+
+export default function DashboardPage() {
+  const [todayStats, setTodayStats] = useState({
+    exerciseCount: 2,
+    totalCalories: 800,
+    calorieTarget: 2000,
+    totalProtein: 55,
+    streak: 5,
+  });
+
+  // Get today's data from the weekly data
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const todayData = mockWeeklyData.find((d) => d.date === today);
+    if (todayData) {
+      setTodayStats((prev) => ({
+        ...prev,
+        exerciseCount: todayData.exerciseCount,
+        totalCalories: todayData.calories,
+        totalProtein: todayData.protein,
+      }));
+    }
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <OnboardingDialog />
+      <div className="container py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Track your fitness journey
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Link href="/butler">
+              <Button variant="outline" className="gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Butler
+              </Button>
+            </Link>
+            <Link href="/trainer">
+              <Button className="gap-2">
+                <Dumbbell className="h-4 w-4" />
+                Trainer
+              </Button>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Stats Cards */}
+        <StatsCards {...todayStats} />
+
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <CalorieChart data={mockWeeklyData} calorieTarget={2000} />
+          <WeeklyOverview data={mockWeeklyData} />
         </div>
-      </main>
-    </div>
+
+        {/* Exercise History */}
+        <div className="mt-6">
+          <ExerciseHistory exercises={mockExercises} />
+        </div>
+      </div>
+    </>
   );
 }
