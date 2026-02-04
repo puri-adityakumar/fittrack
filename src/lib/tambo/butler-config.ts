@@ -8,7 +8,7 @@ import { ExerciseSuggestionList, exerciseSuggestionListSchema } from "@/componen
 /**
  * Butler Agent Configuration
  * 
- * Model: GPT-4o-mini (cost-effective)
+ * Model: Shared project model
  * Purpose: Daily tracking and data entry
  * 
  * Tasks:
@@ -51,7 +51,7 @@ export const butlerTools = tools;
 
 /**
  * Butler Custom Instructions (System Prompt)
- * Configure this in the Tambo Dashboard under your Butler project settings
+ * Used by the app to seed the Butler thread with a hidden system prompt.
  */
 export const BUTLER_SYSTEM_PROMPT = `You are FitLog, a quick and efficient fitness tracking assistant.
 

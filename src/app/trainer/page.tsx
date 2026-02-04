@@ -20,6 +20,9 @@ import Link from "next/link";
 function TrainerChat() {
   const { thread, generationStage, isIdle } = useTamboThread();
   const { value, setValue, submit, isPending } = useTamboThreadInput();
+  const visibleMessages =
+    thread?.messages.filter((message) => !message.additionalContext?.hidden) ??
+    [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +84,7 @@ function TrainerChat() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {thread?.messages.length === 0 && (
+        {visibleMessages.length === 0 && (
           <div className="text-center py-12">
             <Dumbbell className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <h2 className="text-lg font-medium mb-2">
@@ -108,7 +111,7 @@ function TrainerChat() {
           </div>
         )}
 
-        {thread?.messages.map((message) => (
+        {visibleMessages.map((message) => (
           <div
             key={message.id}
             className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"

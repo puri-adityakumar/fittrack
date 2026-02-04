@@ -7,7 +7,7 @@ import { FormCorrectionCard, formCorrectionCardSchema } from "@/components/tambo
 /**
  * Trainer Agent Configuration
  * 
- * Model: GPT-4 or Claude (high intelligence)
+ * Model: Shared project model
  * Purpose: Expert fitness advice and coaching
  * 
  * Tasks:
@@ -44,7 +44,7 @@ export const trainerTools = tools;
 
 /**
  * Trainer Custom Instructions (System Prompt)
- * Configure this in the Tambo Dashboard under your Trainer project settings
+ * Used by the app to seed the Trainer thread with a hidden system prompt.
  */
 export const TRAINER_SYSTEM_PROMPT = `You are FitCoach, an expert personal trainer and nutritionist with years of experience helping people achieve their fitness goals.
 

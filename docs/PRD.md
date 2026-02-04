@@ -34,7 +34,7 @@ FitTrack is a single-user gym report tracking web application powered by AI agen
 FitTrack solves these by:
 - Using natural language for all data entry
 - AI-powered nutrition estimation from food descriptions
-- Two-tier AI system: cheap model for logging, smart model for advice (token optimization)
+- Single AI model with two system prompts (Butler + Trainer behaviors)
 - Comprehensive dashboard for progress visualization
 
 ---
@@ -73,7 +73,7 @@ FitTrack solves these by:
 
 ### 4.2 Butler Agent (Daily Tracking)
 
-**Model**: GPT-4o-mini (cost-effective)
+**Model**: Single shared model (configured in Tambo project)
 
 | Feature | Description | Priority |
 |---------|-------------|----------|
@@ -107,7 +107,7 @@ Butler: [DailyProgressCard] 3 exercises done, 1200/2000 calories consumed
 
 ### 4.3 Trainer Agent (Expert Advice)
 
-**Model**: GPT-4 or Claude (high intelligence)
+**Model**: Single shared model (configured in Tambo project)
 
 | Feature | Description | Priority |
 |---------|-------------|----------|

@@ -4,88 +4,83 @@
 
 **FitTrack** - An AI-powered gym report tracker built with Tambo for generative UI.
 
-This is a single-user fitness tracking application featuring:
-- Two AI agents (Butler for logging, Trainer for advice)
-- Exercise tracking with ExerciseDB API integration
-- Meal logging with automatic nutrition estimation
-- Dashboard with progress visualization
+Single-user fitness tracking with two AI agents and one Tambo project:
+- **Butler Agent**: Daily tracking and data entry
+- **Trainer Agent**: Expert fitness advice and planning
 
-## Tech Stack
+Both agents share the same Tambo project and model; their behavior differs via separate system prompts.
 
-| Technology | Purpose |
-|------------|---------|
-| Next.js 14 | React framework (App Router) |
-| Tambo React SDK | Generative UI with AI agents |
-| Convex | Real-time database |
-| Tailwind CSS | Styling |
-| shadcn/ui | UI components |
-| Recharts | Charts and visualization |
-| ExerciseDB API | Exercise data (via RapidAPI MCP) |
+## Build & Development Commands
 
-## Project Structure
+```bash
+# Development
+npm run dev              # Start Next.js dev server
+npx convex dev           # Start Convex dev server (run in separate terminal)
 
-```
-/
-├── app/                    # Next.js App Router pages
-│   ├── layout.tsx          # Root layout with providers
-│   ├── page.tsx            # Dashboard
-│   ├── butler/             # Butler agent chat
-│   ├── trainer/            # Trainer agent chat
-│   └── settings/           # User settings
-├── components/
-│   ├── onboarding/         # First-time user setup
-│   ├── tambo/              # Tambo-registered AI components
-│   │   ├── butler/         # Butler-specific components
-│   │   └── trainer/        # Trainer-specific components
-│   ├── dashboard/          # Dashboard widgets
-│   ├── layout/             # Navigation, sidebar, header
-│   └── ui/                 # shadcn/ui components
-├── convex/                 # Convex backend
-│   ├── schema.ts           # Database schema
-│   └── *.ts                # Mutations and queries
-├── lib/
-│   ├── tambo/              # Tambo configuration
-│   └── utils.ts            # Utility functions
-├── hooks/                  # Custom React hooks
-├── providers/              # Context providers
-└── docs/                   # Documentation
-    └── PRD.md              # Product requirements
+# Building
+npm run build            # Build for production
+npm start                # Start production server
+
+# Linting
+npm run lint             # Run ESLint on all files
+npm run lint -- --fix    # Auto-fix ESLint issues
+
+# Note: No test framework configured. To add tests, use Jest or Vitest.
 ```
 
-## Code Conventions
+## Code Style Guidelines
 
 ### TypeScript
 
-- Use TypeScript for all files
+- **Strict mode enabled** - always use proper types
 - Prefer `interface` over `type` for object shapes
-- Use strict mode
-- Export types from dedicated files when shared
+- Use `type` for unions and complex type operations
+- Export shared types from dedicated files
 
 ```typescript
-// ✅ Good
-interface Exercise {
+// ✅ Interface for objects
+interface ExerciseLog {
   name: string;
   sets: number;
   reps: number;
 }
 
-// ❌ Avoid
-type Exercise = {
-  name: string;
-  sets: number;
-  reps: number;
-}
+// ✅ Type for unions
+type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 ```
 
-### React Components
+### Import Order
 
-- Use functional components with hooks
-- Use named exports for components
-- Colocate component-specific types
-- Use `"use client"` directive only when necessary
+1. React/Next.js imports
+2. Third-party libraries (alphabetical)
+3. Local aliases (`@/components`, `@/lib`)
+4. Relative imports (only when necessary)
 
 ```typescript
-// ✅ Good
+import * as React from "react"
+import { useState } from "react"
+import { z } from "zod"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+```
+
+### Naming Conventions
+
+- **Components**: PascalCase (`ExerciseLogCard`)
+- **Files**: kebab-case (`exercise-log-card.tsx`)
+- **Hooks**: camelCase starting with `use` (`useExerciseData`)
+- **Constants**: UPPER_SNAKE_CASE for true constants
+- **Variables/Functions**: camelCase
+- **Zod schemas**: camelCase with `Schema` suffix (`exerciseLogSchema`)
+
+### Component Patterns
+
+- Use functional components with hooks
+- Named exports for components
+- Props interface named `{ComponentName}Props`
+- Use `"use client"` only when using client-side features
+
+```typescript
 "use client";
 
 interface ExerciseCardProps {
@@ -95,22 +90,13 @@ interface ExerciseCardProps {
 }
 
 export function ExerciseCard({ name, sets, reps }: ExerciseCardProps) {
-  return (
-    <div className="p-4 border rounded-lg">
-      <h3 className="font-semibold">{name}</h3>
-      <p>{sets} sets × {reps} reps</p>
-    </div>
-  );
+  return <div>...</div>;
 }
 ```
 
 ### Tambo Components
 
-When creating Tambo-registered components:
-
-1. Define Zod schema for props
-2. Create the React component
-3. Register in the appropriate config file
+Always define Zod schema and register in config:
 
 ```typescript
 // components/tambo/butler/exercise-log-card.tsx
@@ -121,157 +107,107 @@ export const exerciseLogCardSchema = z.object({
   sets: z.number(),
   reps: z.number(),
   weight: z.number().optional(),
-  date: z.string(),
 });
 
 export function ExerciseLogCard({ 
-  exerciseName, 
-  sets, 
-  reps, 
-  weight, 
-  date 
+  exerciseName, sets, reps, weight 
 }: z.infer<typeof exerciseLogCardSchema>) {
-  // Component implementation
+  // Implementation
 }
 
-// lib/tambo/butler-config.ts
-export const butlerComponents: TamboComponent[] = [
+// Register in lib/tambo/butler-config.ts
+export const butlerComponents = [
   {
     name: "ExerciseLogCard",
-    description: "Displays a logged exercise with sets, reps, and weight",
+    description: "Displays logged exercise",
     component: ExerciseLogCard,
     propsSchema: exerciseLogCardSchema,
   },
 ];
 ```
 
-### Convex
-
-- Define schema in `convex/schema.ts`
-- Use descriptive function names
-- Add indexes for frequently queried fields
+### Convex Patterns
 
 ```typescript
-// convex/schema.ts
-export default defineSchema({
-  exerciseLogs: defineTable({
-    date: v.string(),
-    exerciseName: v.string(),
-    sets: v.number(),
-    reps: v.number(),
-    weight: v.optional(v.number()),
-  }).index("by_date", ["date"]),
-});
+// Schema with indexes
+exerciseLogs: defineTable({
+  date: v.string(),
+  exerciseName: v.string(),
+}).index("by_date", ["date"]),
 
-// convex/exerciseLogs.ts
+// Mutation with typed args
 export const logExercise = mutation({
   args: {
     exerciseName: v.string(),
     sets: v.number(),
-    reps: v.number(),
-    weight: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // Implementation
+    return await ctx.db.insert("exerciseLogs", {
+      ...args,
+      createdAt: new Date().toISOString(),
+    });
   },
 });
 ```
 
-### Styling
+### Styling (Tailwind CSS)
 
-- Use Tailwind CSS utility classes
-- Follow mobile-first responsive design
-- Use shadcn/ui components when available
-- Use CSS variables for theming (defined in globals.css)
+- Mobile-first responsive design
+- Use `cn()` utility for conditional classes
+- Never use inline styles
 
 ```tsx
-// ✅ Good - Tailwind utilities
-<div className="flex flex-col gap-4 p-4 md:flex-row md:p-6">
+// ✅ Good
+<div className={cn("flex flex-col gap-4 p-4 md:flex-row", className)}>
 
-// ❌ Avoid - Inline styles
+// ❌ Avoid
 <div style={{ display: 'flex', padding: '16px' }}>
 ```
 
-## Environment Variables
+### Error Handling
 
-Required environment variables:
+- Use try/catch for async operations
+- Return early for error cases
+- Use Convex's built-in error handling
 
-```env
-# Tambo AI (two separate projects)
-NEXT_PUBLIC_TAMBO_BUTLER_API_KEY=    # Butler agent (GPT-4o-mini)
-NEXT_PUBLIC_TAMBO_TRAINER_API_KEY=   # Trainer agent (GPT-4/Claude)
-
-# ExerciseDB API
-EXERCISEDB_API_KEY=                  # RapidAPI key
-
-# Convex
-NEXT_PUBLIC_CONVEX_URL=              # Convex deployment URL
+```typescript
+export const fetchData = query({
+  handler: async (ctx) => {
+    try {
+      const data = await ctx.db.query("table").collect();
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+      throw new Error("Failed to fetch data");
+    }
+  },
+});
 ```
 
-## Two-Agent Architecture
+## Project Structure
 
-### Butler Agent
-- **Model**: GPT-4o-mini (cost-effective)
-- **Purpose**: Daily tracking and data entry
-- **Tasks**: Log exercises, log meals, suggest exercises, show progress
-
-### Trainer Agent
-- **Model**: GPT-4 or Claude (high intelligence)
-- **Purpose**: Expert fitness advice
-- **Tasks**: Form corrections, workout planning, progress analysis
-
-Each agent has its own:
-- Tambo project with different model configuration
-- Set of registered components
-- Set of tools
-- Custom instructions (system prompt)
-
-## Key Files Reference
-
-| File | Purpose |
-|------|---------|
-| `lib/tambo/butler-config.ts` | Butler components and tools |
-| `lib/tambo/trainer-config.ts` | Trainer components and tools |
-| `providers/tambo-providers.tsx` | Dual TamboProvider setup |
-| `convex/schema.ts` | Database schema |
-| `components/onboarding/onboarding-dialog.tsx` | First-time setup |
-
-## Common Tasks
-
-### Adding a New Tambo Component
-
-1. Create component in `components/tambo/{agent}/`
-2. Define Zod schema for props
-3. Add to component array in `lib/tambo/{agent}-config.ts`
-
-### Adding a New Convex Table
-
-1. Add table definition to `convex/schema.ts`
-2. Create mutations/queries in `convex/{tableName}.ts`
-3. Run `npx convex dev` to sync schema
-
-### Adding a New Tambo Tool
-
-1. Define tool with `defineTool()` in `lib/tambo/{agent}-config.ts`
-2. Implement the tool function (calls Convex or external API)
-3. Add to tools array in provider config
-
-## Testing Locally
-
-```bash
-# Install dependencies
-npm install
-
-# Start Convex dev server
-npx convex dev
-
-# Start Next.js dev server
-npm run dev
+```
+app/                    # Next.js App Router
+components/             # React components
+  ui/                   # shadcn/ui components
+  tambo/                # Tambo AI components
+    butler/             # Butler agent components
+    trainer/            # Trainer agent components
+  dashboard/            # Dashboard widgets
+  layout/               # Navigation, sidebar
+  onboarding/           # First-time setup
+convex/                 # Convex backend
+  schema.ts             # Database schema
+lib/                    # Utilities and configs
+  tambo/                # Tambo configurations
+  utils.ts              # Helper functions
+providers/              # Context providers
 ```
 
-## Important Notes
+## Key Conventions
 
-- This is a **single-user** application (no authentication)
-- User profile is stored in Convex, checked via localStorage flag
-- ExerciseDB API is accessed via MCP (Model Context Protocol)
-- Nutrition values are AI-estimated, not from a nutrition database
+- Use `@/*` alias for imports from `src/`
+- Single-user app (no auth)
+- Store timestamps as ISO strings
+- Use shadcn/ui components when available
+- Keep components under 200 lines when possible

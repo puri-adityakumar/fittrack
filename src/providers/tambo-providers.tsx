@@ -2,8 +2,16 @@
 
 import { TamboProvider } from "@tambo-ai/react";
 import { ReactNode } from "react";
-import { butlerComponents, butlerTools } from "@/lib/tambo/butler-config";
-import { trainerComponents, trainerTools } from "@/lib/tambo/trainer-config";
+import {
+  BUTLER_SYSTEM_PROMPT,
+  butlerComponents,
+  butlerTools,
+} from "@/lib/tambo/butler-config";
+import {
+  TRAINER_SYSTEM_PROMPT,
+  trainerComponents,
+  trainerTools,
+} from "@/lib/tambo/trainer-config";
 
 interface ButlerProviderProps {
   children: ReactNode;
@@ -12,6 +20,22 @@ interface ButlerProviderProps {
 interface TrainerProviderProps {
   children: ReactNode;
 }
+
+const allComponents = [...butlerComponents, ...trainerComponents];
+const allTools = [
+  ...new Map(
+    [...butlerTools, ...trainerTools].map((tool) => [tool.name, tool])
+  ).values(),
+];
+
+const SYSTEM_PROMPT_PREFIX = "[[SYSTEM_PROMPT]]";
+const createInitialMessages = (prompt: string) => [
+  {
+    role: "assistant" as const,
+    content: `${SYSTEM_PROMPT_PREFIX}\n${prompt}`,
+    additionalContext: { hidden: true, systemPrompt: true },
+  },
+];
 
 /**
  * Butler Agent Provider
@@ -23,18 +47,22 @@ interface TrainerProviderProps {
  * - Exercise suggestions
  */
 export function ButlerProvider({ children }: ButlerProviderProps) {
-  const apiKey = process.env.NEXT_PUBLIC_TAMBO_BUTLER_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
 
   if (!apiKey) {
-    console.warn("Butler API key not configured. Set NEXT_PUBLIC_TAMBO_BUTLER_API_KEY in .env.local");
+    console.warn(
+      "Tambo API key not configured. Set NEXT_PUBLIC_TAMBO_API_KEY in .env.local"
+    );
     return <>{children}</>;
   }
 
   return (
     <TamboProvider
       apiKey={apiKey}
-      components={butlerComponents}
-      tools={butlerTools}
+      components={allComponents}
+      tools={allTools}
+      contextKey="butler"
+      initialMessages={createInitialMessages(BUTLER_SYSTEM_PROMPT)}
     >
       {children}
     </TamboProvider>
@@ -51,18 +79,22 @@ export function ButlerProvider({ children }: ButlerProviderProps) {
  * - Nutrition guidance
  */
 export function TrainerProvider({ children }: TrainerProviderProps) {
-  const apiKey = process.env.NEXT_PUBLIC_TAMBO_TRAINER_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
 
   if (!apiKey) {
-    console.warn("Trainer API key not configured. Set NEXT_PUBLIC_TAMBO_TRAINER_API_KEY in .env.local");
+    console.warn(
+      "Tambo API key not configured. Set NEXT_PUBLIC_TAMBO_API_KEY in .env.local"
+    );
     return <>{children}</>;
   }
 
   return (
     <TamboProvider
       apiKey={apiKey}
-      components={trainerComponents}
-      tools={trainerTools}
+      components={allComponents}
+      tools={allTools}
+      contextKey="trainer"
+      initialMessages={createInitialMessages(TRAINER_SYSTEM_PROMPT)}
     >
       {children}
     </TamboProvider>
