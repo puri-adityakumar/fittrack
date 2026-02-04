@@ -126,8 +126,8 @@ function TrainerChat() {
             )}
             <div
               className={`max-w-[80%] ${message.role === "user"
-                  ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-md px-4 py-2"
-                  : ""
+                ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-md px-4 py-2"
+                : ""
                 }`}
             >
               {/* Text content */}

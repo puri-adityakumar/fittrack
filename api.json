@@ -1,15 +1,15 @@
 {
-    "mcpServers": {
-      "RapidAPI Hub - ExerciseDB": {
+  "mcpServers": {
+    "RapidAPI Hub - ExerciseDB": {
       "command": "bunx",
-        "args": [
-          "mcp-remote",
-          "https://mcp.rapidapi.com",
-          "--header",
-          "x-api-host: exercisedb.p.rapidapi.com",
-          "--header",
-          "x-api-key: 8b6641fc35msh8cd9ae700b4ca92p1affa4jsn6a761377c242"
-        ]
-      }
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: exercisedb.p.rapidapi.com",
+        "--header",
+        "x-api-key: 8b6641fc35msh8cd9ae700b4ca92p1affa4jsn6a761377c242"
+      ]
     }
   }
+}

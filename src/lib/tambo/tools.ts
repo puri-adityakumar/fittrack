@@ -1,5 +1,7 @@
 import { defineTool } from "@tambo-ai/react";
 import { z } from "zod";
+import { getConvexClient } from "@/lib/convex/client";
+import { api } from "../../../convex/_generated/api";
 
 /**
  * Tambo Tools for FitTrack
@@ -7,6 +9,19 @@ import { z } from "zod";
  * These tools allow the AI agents to interact with the app's data
  * and external services like ExerciseDB.
  */
+
+const resolveDate = (date?: string) =>
+  date || new Date().toISOString().split("T")[0];
+
+const getDateRange = (days: number) => {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(end.getDate() - Math.max(days - 1, 0));
+  return {
+    startDate: start.toISOString().split("T")[0],
+    endDate: end.toISOString().split("T")[0],
+  };
+};
 
 // ============================================
 // EXERCISE TOOLS (Butler)
@@ -16,6 +31,7 @@ export const logExerciseTool = defineTool({
   name: "logExercise",
   description: "Log a completed exercise with sets, reps, and optional weight. Use this when the user says they did an exercise.",
   inputSchema: z.object({
+    exerciseId: z.string().optional().describe("ExerciseDB ID (optional)"),
     exerciseName: z.string().describe("Name of the exercise (e.g., 'Bench Press', 'Squats')"),
     sets: z.number().min(1).describe("Number of sets completed"),
     reps: z.number().min(1).describe("Number of reps per set"),
@@ -30,18 +46,34 @@ export const logExerciseTool = defineTool({
     exerciseId: z.string().optional(),
   }),
   tool: async (input) => {
-    // This will be implemented to call Convex mutation
-    const date = input.date || new Date().toISOString().split("T")[0];
+    const date = resolveDate(input.date);
+    try {
+      const convex = getConvexClient();
+      const exerciseId = await convex.mutation(api.exerciseLogs.create, {
+        date,
+        exerciseId: input.exerciseId,
+        exerciseName: input.exerciseName,
+        sets: input.sets,
+        reps: input.reps,
+        weight: input.weight,
+        duration: input.duration,
+        notes: input.notes,
+      });
 
-    // For now, return a mock response
-    // In production, this calls: api.exerciseLogs.create
-    console.log("Logging exercise:", input);
+      await convex.mutation(api.dailyLogs.recalculate, { date });
 
-    return {
-      success: true,
-      message: `Logged: ${input.exerciseName} - ${input.sets} sets × ${input.reps} reps${input.weight ? ` @ ${input.weight}kg` : ""}`,
-      exerciseId: "mock-id",
-    };
+      return {
+        success: true,
+        message: `Logged: ${input.exerciseName} - ${input.sets} sets × ${input.reps} reps${input.weight ? ` @ ${input.weight}kg` : ""}`,
+        exerciseId,
+      };
+    } catch (error) {
+      console.error("Failed to log exercise:", error);
+      return {
+        success: false,
+        message: "Failed to log exercise. Check Convex connection.",
+      };
+    }
   },
 });
 
@@ -61,16 +93,26 @@ export const getDailyExercisesTool = defineTool({
     count: z.number(),
   }),
   tool: async (input) => {
-    const date = input.date || new Date().toISOString().split("T")[0];
-
-    // For now, return mock data
-    // In production, this calls: api.exerciseLogs.getByDate
-    console.log("Getting exercises for:", date);
-
-    return {
-      exercises: [],
-      count: 0,
-    };
+    const date = resolveDate(input.date);
+    try {
+      const convex = getConvexClient();
+      const logs = await convex.query(api.exerciseLogs.getByDate, { date });
+      return {
+        exercises: logs.map((log) => ({
+          name: log.exerciseName,
+          sets: log.sets,
+          reps: log.reps,
+          weight: log.weight,
+        })),
+        count: logs.length,
+      };
+    } catch (error) {
+      console.error("Failed to fetch exercises:", error);
+      return {
+        exercises: [],
+        count: 0,
+      };
+    }
   },
 });
 
@@ -86,6 +128,7 @@ export const logMealTool = defineTool({
     mealType: z.enum(["breakfast", "lunch", "dinner", "snack"]).describe("Type of meal"),
     quantity: z.string().optional().describe("Quantity description (e.g., '1 bowl', '200g')"),
     date: z.string().optional().describe("Date in YYYY-MM-DD format. Defaults to today."),
+    fiber: z.number().optional().describe("Estimated fiber in grams"),
     // AI-estimated nutrition (these come from the AI's response)
     calories: z.number().describe("Estimated calories"),
     protein: z.number().describe("Estimated protein in grams"),
@@ -98,17 +141,36 @@ export const logMealTool = defineTool({
     mealId: z.string().optional(),
   }),
   tool: async (input) => {
-    const date = input.date || new Date().toISOString().split("T")[0];
+    const date = resolveDate(input.date);
+    try {
+      const convex = getConvexClient();
+      const mealId = await convex.mutation(api.mealLogs.create, {
+        date,
+        mealType: input.mealType,
+        foodName: input.foodName,
+        quantity: input.quantity,
+        calories: input.calories,
+        protein: input.protein,
+        carbs: input.carbs,
+        fat: input.fat,
+        fiber: input.fiber,
+        notes: undefined,
+      });
 
-    // For now, return a mock response
-    // In production, this calls: api.mealLogs.create
-    console.log("Logging meal:", input);
+      await convex.mutation(api.dailyLogs.recalculate, { date });
 
-    return {
-      success: true,
-      message: `Logged ${input.mealType}: ${input.foodName} - ${input.calories} cal | ${input.protein}g protein | ${input.carbs}g carbs | ${input.fat}g fat`,
-      mealId: "mock-id",
-    };
+      return {
+        success: true,
+        message: `Logged ${input.mealType}: ${input.foodName} - ${input.calories} cal | ${input.protein}g protein | ${input.carbs}g carbs | ${input.fat}g fat`,
+        mealId,
+      };
+    } catch (error) {
+      console.error("Failed to log meal:", error);
+      return {
+        success: false,
+        message: "Failed to log meal. Check Convex connection.",
+      };
+    }
   },
 });
 
@@ -135,15 +197,39 @@ export const getDailyMealsTool = defineTool({
     }),
   }),
   tool: async (input) => {
-    const date = input.date || new Date().toISOString().split("T")[0];
+    const date = resolveDate(input.date);
+    try {
+      const convex = getConvexClient();
+      const logs = await convex.query(api.mealLogs.getByDate, { date });
 
-    // For now, return mock data
-    console.log("Getting meals for:", date);
+      const totals = logs.reduce(
+        (acc, log) => ({
+          calories: acc.calories + log.calories,
+          protein: acc.protein + log.protein,
+          carbs: acc.carbs + log.carbs,
+          fat: acc.fat + log.fat,
+        }),
+        { calories: 0, protein: 0, carbs: 0, fat: 0 }
+      );
 
-    return {
-      meals: [],
-      totals: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-    };
+      return {
+        meals: logs.map((log) => ({
+          foodName: log.foodName,
+          mealType: log.mealType,
+          calories: log.calories,
+          protein: log.protein,
+          carbs: log.carbs,
+          fat: log.fat,
+        })),
+        totals,
+      };
+    } catch (error) {
+      console.error("Failed to fetch meals:", error);
+      return {
+        meals: [],
+        totals: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      };
+    }
   },
 });
 
@@ -168,21 +254,44 @@ export const getDailyProgressTool = defineTool({
     calorieProgress: z.number().describe("Percentage of calorie target consumed"),
   }),
   tool: async (input) => {
-    const date = input.date || new Date().toISOString().split("T")[0];
+    const date = resolveDate(input.date);
+    try {
+      const convex = getConvexClient();
+      let dailyLog = await convex.query(api.dailyLogs.getByDate, { date });
+      if (!dailyLog) {
+        await convex.mutation(api.dailyLogs.recalculate, { date });
+        dailyLog = await convex.query(api.dailyLogs.getByDate, { date });
+      }
 
-    // For now, return mock data
-    console.log("Getting daily progress for:", date);
+      const profile = await convex.query(api.userProfile.get, {});
+      const calorieTarget = profile?.dailyCalorieTarget ?? 2000;
+      const totalCalories = dailyLog?.totalCalories ?? 0;
+      const calorieProgress =
+        calorieTarget > 0 ? (totalCalories / calorieTarget) * 100 : 0;
 
-    return {
-      date,
-      exerciseCount: 0,
-      totalCalories: 0,
-      totalProtein: 0,
-      totalCarbs: 0,
-      totalFat: 0,
-      calorieTarget: 2000,
-      calorieProgress: 0,
-    };
+      return {
+        date,
+        exerciseCount: dailyLog?.exerciseCount ?? 0,
+        totalCalories,
+        totalProtein: dailyLog?.totalProtein ?? 0,
+        totalCarbs: dailyLog?.totalCarbs ?? 0,
+        totalFat: dailyLog?.totalFat ?? 0,
+        calorieTarget,
+        calorieProgress,
+      };
+    } catch (error) {
+      console.error("Failed to fetch daily progress:", error);
+      return {
+        date,
+        exerciseCount: 0,
+        totalCalories: 0,
+        totalProtein: 0,
+        totalCarbs: 0,
+        totalFat: 0,
+        calorieTarget: 2000,
+        calorieProgress: 0,
+      };
+    }
   },
 });
 
@@ -198,16 +307,41 @@ export const getWeeklyStatsTool = defineTool({
     streakDays: z.number(),
   }),
   tool: async () => {
-    // For now, return mock data
-    console.log("Getting weekly stats");
+    try {
+      const convex = getConvexClient();
+      const logs = await convex.query(api.dailyLogs.getRecent, { days: 7 });
+      const daysTracked = logs.length;
+      const totals = logs.reduce(
+        (acc, log) => ({
+          totalCalories: acc.totalCalories + log.totalCalories,
+          totalProtein: acc.totalProtein + log.totalProtein,
+          totalExercises: acc.totalExercises + log.exerciseCount,
+        }),
+        { totalCalories: 0, totalProtein: 0, totalExercises: 0 }
+      );
 
-    return {
-      totalExercises: 0,
-      avgCalories: 0,
-      avgProtein: 0,
-      daysTracked: 0,
-      streakDays: 0,
-    };
+      const avgCalories =
+        daysTracked > 0 ? Math.round(totals.totalCalories / daysTracked) : 0;
+      const avgProtein =
+        daysTracked > 0 ? Math.round(totals.totalProtein / daysTracked) : 0;
+
+      return {
+        totalExercises: totals.totalExercises,
+        avgCalories,
+        avgProtein,
+        daysTracked,
+        streakDays: daysTracked,
+      };
+    } catch (error) {
+      console.error("Failed to fetch weekly stats:", error);
+      return {
+        totalExercises: 0,
+        avgCalories: 0,
+        avgProtein: 0,
+        daysTracked: 0,
+        streakDays: 0,
+      };
+    }
   },
 });
 
@@ -228,17 +362,38 @@ export const getUserProfileTool = defineTool({
     dailyCalorieTarget: z.number().optional(),
   }),
   tool: async () => {
-    // For now, return mock data
-    console.log("Getting user profile");
-
-    return {
-      name: "User",
-      height: 170,
-      weight: 70,
-      age: 25,
-      fitnessGoal: "maintain",
-      dailyCalorieTarget: 2000,
-    };
+    try {
+      const convex = getConvexClient();
+      const profile = await convex.query(api.userProfile.get, {});
+      if (!profile) {
+        return {
+          name: "User",
+          height: 170,
+          weight: 70,
+          age: 25,
+          fitnessGoal: "maintain",
+          dailyCalorieTarget: 2000,
+        };
+      }
+      return {
+        name: profile.name,
+        height: profile.height,
+        weight: profile.weight,
+        age: profile.age,
+        fitnessGoal: profile.fitnessGoal,
+        dailyCalorieTarget: profile.dailyCalorieTarget,
+      };
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+      return {
+        name: "User",
+        height: 170,
+        weight: 70,
+        age: 25,
+        fitnessGoal: "maintain",
+        dailyCalorieTarget: 2000,
+      };
+    }
   },
 });
 
@@ -263,12 +418,35 @@ export const getUserProgressHistoryTool = defineTool({
     })),
   }),
   tool: async (input) => {
-    console.log("Getting progress history for", input.days, "days");
+    try {
+      const convex = getConvexClient();
+      const range = getDateRange(input.days);
+      const exercises = await convex.query(api.exerciseLogs.getByDateRange, range);
+      const dailyStats = await convex.query(api.dailyLogs.getRecent, {
+        days: input.days,
+      });
 
-    return {
-      exercises: [],
-      dailyStats: [],
-    };
+      return {
+        exercises: exercises.map((log) => ({
+          date: log.date,
+          name: log.exerciseName,
+          sets: log.sets,
+          reps: log.reps,
+          weight: log.weight,
+        })),
+        dailyStats: dailyStats.map((log) => ({
+          date: log.date,
+          calories: log.totalCalories,
+          exerciseCount: log.exerciseCount,
+        })),
+      };
+    } catch (error) {
+      console.error("Failed to fetch progress history:", error);
+      return {
+        exercises: [],
+        dailyStats: [],
+      };
+    }
   },
 });
 
@@ -295,13 +473,32 @@ export const createWorkoutPlanTool = defineTool({
     planId: z.string().optional(),
   }),
   tool: async (input) => {
-    console.log("Creating workout plan:", input);
+    try {
+      const convex = getConvexClient();
+      const planId = await convex.mutation(api.workoutPlans.create, {
+        name: input.name,
+        description: input.description,
+        exercises: input.exercises.map((exercise) => ({
+          name: exercise.name,
+          sets: exercise.sets,
+          reps: exercise.reps,
+          restSeconds: exercise.restSeconds ?? 60,
+        })),
+        createdBy: "trainer",
+      });
 
-    return {
-      success: true,
-      message: `Created workout plan: ${input.name} with ${input.exercises.length} exercises`,
-      planId: "mock-id",
-    };
+      return {
+        success: true,
+        message: `Created workout plan: ${input.name} with ${input.exercises.length} exercises`,
+        planId,
+      };
+    } catch (error) {
+      console.error("Failed to create workout plan:", error);
+      return {
+        success: false,
+        message: "Failed to create workout plan. Check Convex connection.",
+      };
+    }
   },
 });
 
@@ -318,11 +515,23 @@ export const getWorkoutPlansTool = defineTool({
     })),
   }),
   tool: async () => {
-    console.log("Getting workout plans");
-
-    return {
-      plans: [],
-    };
+    try {
+      const convex = getConvexClient();
+      const plans = await convex.query(api.workoutPlans.getAll, {});
+      return {
+        plans: plans.map((plan) => ({
+          id: plan._id,
+          name: plan.name,
+          description: plan.description,
+          exerciseCount: plan.exercises.length,
+        })),
+      };
+    } catch (error) {
+      console.error("Failed to fetch workout plans:", error);
+      return {
+        plans: [],
+      };
+    }
   },
 });
 

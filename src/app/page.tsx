@@ -5,6 +5,8 @@ import { StatsCards } from "@/components/dashboard/stats-cards";
 import { CalorieChart } from "@/components/dashboard/calorie-chart";
 import { ExerciseHistory } from "@/components/dashboard/exercise-history";
 import { WeeklyOverview } from "@/components/dashboard/weekly-overview";
+import { ExerciseLogTable } from "@/components/dashboard/exercise-log-table";
+import { MealLogTable } from "@/components/dashboard/meal-log-table";
 import { OnboardingDialog } from "@/components/onboarding/onboarding-dialog";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Dumbbell } from "lucide-react";
@@ -119,6 +121,12 @@ export default function DashboardPage() {
         {/* Exercise History */}
         <div className="mt-6">
           <ExerciseHistory exercises={mockExercises} />
+        </div>
+
+        {/* Daily Logs Table */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <ExerciseLogTable />
+          <MealLogTable />
         </div>
       </div>
     </>

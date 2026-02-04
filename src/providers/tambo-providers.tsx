@@ -32,7 +32,12 @@ const SYSTEM_PROMPT_PREFIX = "[[SYSTEM_PROMPT]]";
 const createInitialMessages = (prompt: string) => [
   {
     role: "assistant" as const,
-    content: `${SYSTEM_PROMPT_PREFIX}\n${prompt}`,
+    content: [
+      {
+        type: "text" as const,
+        text: `${SYSTEM_PROMPT_PREFIX}\n${prompt}`,
+      },
+    ],
     additionalContext: { hidden: true, systemPrompt: true },
   },
 ];

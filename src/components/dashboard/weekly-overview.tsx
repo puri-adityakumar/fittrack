@@ -62,7 +62,7 @@ export function WeeklyOverview({ data }: WeeklyOverviewProps) {
                   borderRadius: "8px",
                 }}
                 labelStyle={{ color: "hsl(var(--foreground))" }}
-                formatter={(value: number) => [`${value} exercises`, "Exercises"]}
+                formatter={(value) => [`${value ?? 0} exercises`, "Exercises"]}
               />
               <Bar dataKey="exerciseCount" radius={[4, 4, 0, 0]}>
                 {formattedData.map((entry, index) => (
