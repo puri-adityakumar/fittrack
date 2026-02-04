@@ -82,7 +82,7 @@ export function OnboardingDialog({ onComplete }: OnboardingDialogProps) {
     try {
       // TODO: Save to Convex when functions are ready
       // await saveUserProfile(formData);
-      
+
       completeOnboarding();
       onComplete?.(formData);
     } catch (error) {
@@ -98,7 +98,7 @@ export function OnboardingDialog({ onComplete }: OnboardingDialogProps) {
   }
 
   return (
-    <Dialog open={!isComplete} onOpenChange={() => {}}>
+    <Dialog open={!isComplete} onOpenChange={() => { }}>
       <DialogContent className="sm:max-w-[500px]" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl">

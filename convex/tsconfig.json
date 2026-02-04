@@ -3,7 +3,11 @@
     "allowJs": true,
     "strict": true,
     "target": "ESNext",
-    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2021",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "module": "ESNext",
@@ -12,6 +16,10 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["./**/*"],
-  "exclude": ["_generated"]
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "_generated"
+  ]
 }

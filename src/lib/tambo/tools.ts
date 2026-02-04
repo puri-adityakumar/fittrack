@@ -32,11 +32,11 @@ export const logExerciseTool = defineTool({
   tool: async (input) => {
     // This will be implemented to call Convex mutation
     const date = input.date || new Date().toISOString().split("T")[0];
-    
+
     // For now, return a mock response
     // In production, this calls: api.exerciseLogs.create
     console.log("Logging exercise:", input);
-    
+
     return {
       success: true,
       message: `Logged: ${input.exerciseName} - ${input.sets} sets × ${input.reps} reps${input.weight ? ` @ ${input.weight}kg` : ""}`,
@@ -62,11 +62,11 @@ export const getDailyExercisesTool = defineTool({
   }),
   tool: async (input) => {
     const date = input.date || new Date().toISOString().split("T")[0];
-    
+
     // For now, return mock data
     // In production, this calls: api.exerciseLogs.getByDate
     console.log("Getting exercises for:", date);
-    
+
     return {
       exercises: [],
       count: 0,
@@ -99,11 +99,11 @@ export const logMealTool = defineTool({
   }),
   tool: async (input) => {
     const date = input.date || new Date().toISOString().split("T")[0];
-    
+
     // For now, return a mock response
     // In production, this calls: api.mealLogs.create
     console.log("Logging meal:", input);
-    
+
     return {
       success: true,
       message: `Logged ${input.mealType}: ${input.foodName} - ${input.calories} cal | ${input.protein}g protein | ${input.carbs}g carbs | ${input.fat}g fat`,
@@ -136,10 +136,10 @@ export const getDailyMealsTool = defineTool({
   }),
   tool: async (input) => {
     const date = input.date || new Date().toISOString().split("T")[0];
-    
+
     // For now, return mock data
     console.log("Getting meals for:", date);
-    
+
     return {
       meals: [],
       totals: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -169,10 +169,10 @@ export const getDailyProgressTool = defineTool({
   }),
   tool: async (input) => {
     const date = input.date || new Date().toISOString().split("T")[0];
-    
+
     // For now, return mock data
     console.log("Getting daily progress for:", date);
-    
+
     return {
       date,
       exerciseCount: 0,
@@ -200,7 +200,7 @@ export const getWeeklyStatsTool = defineTool({
   tool: async () => {
     // For now, return mock data
     console.log("Getting weekly stats");
-    
+
     return {
       totalExercises: 0,
       avgCalories: 0,
@@ -230,7 +230,7 @@ export const getUserProfileTool = defineTool({
   tool: async () => {
     // For now, return mock data
     console.log("Getting user profile");
-    
+
     return {
       name: "User",
       height: 170,
@@ -264,7 +264,7 @@ export const getUserProgressHistoryTool = defineTool({
   }),
   tool: async (input) => {
     console.log("Getting progress history for", input.days, "days");
-    
+
     return {
       exercises: [],
       dailyStats: [],
@@ -296,7 +296,7 @@ export const createWorkoutPlanTool = defineTool({
   }),
   tool: async (input) => {
     console.log("Creating workout plan:", input);
-    
+
     return {
       success: true,
       message: `Created workout plan: ${input.name} with ${input.exercises.length} exercises`,
@@ -319,7 +319,7 @@ export const getWorkoutPlansTool = defineTool({
   }),
   tool: async () => {
     console.log("Getting workout plans");
-    
+
     return {
       plans: [],
     };

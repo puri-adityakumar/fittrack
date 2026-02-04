@@ -232,11 +232,10 @@ export default function SettingsPage() {
               </Button>
               {saveMessage && (
                 <span
-                  className={`text-sm ${
-                    saveMessage.includes("success")
+                  className={`text-sm ${saveMessage.includes("success")
                       ? "text-green-600"
                       : "text-red-600"
-                  }`}
+                    }`}
                 >
                   {saveMessage}
                 </span>

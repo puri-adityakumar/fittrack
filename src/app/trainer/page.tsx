@@ -111,9 +111,8 @@ function TrainerChat() {
         {thread?.messages.map((message) => (
           <div
             key={message.id}
-            className={`flex gap-3 ${
-              message.role === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
+              }`}
           >
             {message.role === "assistant" && (
               <Avatar className="h-8 w-8 bg-blue-100 shrink-0">
@@ -123,11 +122,10 @@ function TrainerChat() {
               </Avatar>
             )}
             <div
-              className={`max-w-[80%] ${
-                message.role === "user"
+              className={`max-w-[80%] ${message.role === "user"
                   ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-md px-4 py-2"
                   : ""
-              }`}
+                }`}
             >
               {/* Text content */}
               {Array.isArray(message.content) ? (

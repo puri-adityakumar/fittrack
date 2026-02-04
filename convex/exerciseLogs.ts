@@ -80,7 +80,7 @@ export const update = mutation({
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
     const filteredUpdates: Record<string, unknown> = {};
-    
+
     if (updates.sets !== undefined) filteredUpdates.sets = updates.sets;
     if (updates.reps !== undefined) filteredUpdates.reps = updates.reps;
     if (updates.weight !== undefined) filteredUpdates.weight = updates.weight;
