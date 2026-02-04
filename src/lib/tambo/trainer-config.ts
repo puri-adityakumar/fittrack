@@ -1,6 +1,7 @@
-import { type TamboComponent, type TamboTool } from "@tambo-ai/react";
+import { type TamboComponent } from "@tambo-ai/react";
+import { trainerTools as tools } from "./tools";
 
-// Trainer Components will be imported here
+// Trainer Components will be imported here once created
 // import { ExerciseAdviceCard, exerciseAdviceCardSchema } from "@/components/tambo/trainer/exercise-advice-card";
 // import { WorkoutPlanCard, workoutPlanCardSchema } from "@/components/tambo/trainer/workout-plan-card";
 // import { FormCorrectionCard, formCorrectionCardSchema } from "@/components/tambo/trainer/form-correction-card";
@@ -24,9 +25,7 @@ export const trainerComponents: TamboComponent[] = [
 ];
 
 // Tools available to Trainer agent
-export const trainerTools: TamboTool[] = [
-  // Will be populated with actual tools
-];
+export const trainerTools = tools;
 
 /**
  * Trainer Custom Instructions (System Prompt)

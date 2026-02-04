@@ -1,6 +1,7 @@
-import { type TamboComponent, type TamboTool } from "@tambo-ai/react";
+import { type TamboComponent } from "@tambo-ai/react";
+import { butlerTools as tools } from "./tools";
 
-// Butler Components will be imported here
+// Butler Components will be imported here once created
 // import { ExerciseLogCard, exerciseLogCardSchema } from "@/components/tambo/butler/exercise-log-card";
 // import { MealLogCard, mealLogCardSchema } from "@/components/tambo/butler/meal-log-card";
 // import { DailyProgressCard, dailyProgressCardSchema } from "@/components/tambo/butler/daily-progress-card";
@@ -25,9 +26,7 @@ export const butlerComponents: TamboComponent[] = [
 ];
 
 // Tools available to Butler agent
-export const butlerTools: TamboTool[] = [
-  // Will be populated with actual tools
-];
+export const butlerTools = tools;
 
 /**
  * Butler Custom Instructions (System Prompt)
