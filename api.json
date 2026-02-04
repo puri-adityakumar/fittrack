@@ -1,7 +1,7 @@
 {
     "mcpServers": {
       "RapidAPI Hub - ExerciseDB": {
-        "command": "npx",
+      "command": "bunx",
         "args": [
           "mcp-remote",
           "https://mcp.rapidapi.com",

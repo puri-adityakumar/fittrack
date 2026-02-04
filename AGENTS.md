@@ -14,16 +14,16 @@ Both agents share the same Tambo project and model; their behavior differs via s
 
 ```bash
 # Development
-npm run dev              # Start Next.js dev server
-npx convex dev           # Start Convex dev server (run in separate terminal)
+bun run dev              # Start Next.js dev server
+bunx convex dev          # Start Convex dev server (run in separate terminal)
 
 # Building
-npm run build            # Build for production
-npm start                # Start production server
+bun run build            # Build for production
+bun run start            # Start production server
 
 # Linting
-npm run lint             # Run ESLint on all files
-npm run lint -- --fix    # Auto-fix ESLint issues
+bun run lint             # Run ESLint on all files
+bun run lint -- --fix    # Auto-fix ESLint issues
 
 # Note: No test framework configured. To add tests, use Jest or Vitest.
 ```

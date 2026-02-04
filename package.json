@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run dev:next",
+    "dev": "bun run dev:next",
     "dev:next": "next dev",
     "dev:convex": "convex dev",
     "build": "next build",

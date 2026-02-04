@@ -390,11 +390,10 @@ Trainer: [ProgressAnalysis] Based on your logs, here are strategies...
 
 ```env
 # Tambo AI
-NEXT_PUBLIC_TAMBO_BUTLER_API_KEY=     # Butler project API key
-NEXT_PUBLIC_TAMBO_TRAINER_API_KEY=    # Trainer project API key
+NEXT_PUBLIC_TAMBO_API_KEY=            # Tambo project API key
 
 # ExerciseDB (RapidAPI)
-EXERCISEDB_API_KEY=8b6641fc35msh8cd9ae700b4ca92p1affa4jsn6a761377c242
+EXERCISEDB_API_KEY=                   # RapidAPI key
 
 # Convex
 NEXT_PUBLIC_CONVEX_URL=               # Convex deployment URL
@@ -407,7 +406,7 @@ CONVEX_DEPLOY_KEY=                    # Convex deploy key
 {
   "mcpServers": {
     "RapidAPI Hub - ExerciseDB": {
-      "command": "npx",
+      "command": "bunx",
       "args": [
         "mcp-remote",
         "https://mcp.rapidapi.com",
