@@ -6,14 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Utensils, Flame } from "lucide-react";
 
 export const mealLogCardSchema = z.object({
-  foodName: z.string().describe("Name/description of the food"),
+  foodName: z.string().optional().describe("Name/description of the food"),
   mealType: z.enum(["breakfast", "lunch", "dinner", "snack"]).describe("Type of meal"),
   quantity: z.string().optional().describe("Quantity description"),
   calories: z.number().describe("Calories"),
   protein: z.number().describe("Protein in grams"),
   carbs: z.number().describe("Carbohydrates in grams"),
   fat: z.number().describe("Fat in grams"),
-  date: z.string().describe("Date of the meal"),
+  date: z.string().optional().describe("Date of the meal"),
 });
 
 type MealLogCardProps = z.infer<typeof mealLogCardSchema>;
@@ -42,6 +42,8 @@ export function MealLogCard({
   fat,
   date,
 }: MealLogCardProps) {
+  const resolvedFoodName = foodName ?? "Meal";
+  const resolvedDate = date ?? new Date().toISOString().split("T")[0];
   const formatDate = (dateStr: string) => {
     const today = new Date().toISOString().split("T")[0];
     if (dateStr === today) return "Today";
@@ -60,11 +62,11 @@ export function MealLogCard({
             {mealTypeEmoji[mealType]} {mealTypeLabel[mealType]}
           </CardTitle>
           <Badge variant="secondary" className="text-xs">
-            {formatDate(date)}
+            {formatDate(resolvedDate)}
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          {foodName}
+          {resolvedFoodName}
           {quantity && ` (${quantity})`}
         </p>
       </CardHeader>

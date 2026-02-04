@@ -8,14 +8,14 @@ import { Dumbbell, Target } from "lucide-react";
 const exerciseSchema = z.object({
   id: z.string().optional().describe("Exercise ID from ExerciseDB"),
   name: z.string().describe("Exercise name"),
-  bodyPart: z.string().describe("Target body part"),
-  equipment: z.string().describe("Required equipment"),
+  bodyPart: z.string().optional().describe("Target body part"),
+  equipment: z.string().optional().describe("Required equipment"),
   gifUrl: z.string().optional().describe("GIF URL showing the exercise"),
   instructions: z.array(z.string()).optional().describe("Exercise instructions"),
 });
 
 export const exerciseSuggestionListSchema = z.object({
-  title: z.string().describe("Title for the suggestion list"),
+  title: z.string().optional().describe("Title for the suggestion list"),
   bodyPart: z.string().optional().describe("Body part filter used"),
   equipment: z.string().optional().describe("Equipment filter used"),
   exercises: z.array(exerciseSchema).describe("List of suggested exercises"),
@@ -29,12 +29,18 @@ export function ExerciseSuggestionList({
   equipment,
   exercises,
 }: ExerciseSuggestionListProps) {
+  const resolvedTitle =
+    title ||
+    (bodyPart || equipment
+      ? `Exercises for ${[bodyPart, equipment].filter(Boolean).join(" · ")}`
+      : "Exercise Suggestions");
+
   return (
     <Card className="w-full max-w-lg">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <Dumbbell className="h-5 w-5 text-primary" />
-          {title}
+          {resolvedTitle}
         </CardTitle>
         <div className="flex gap-2 mt-2">
           {bodyPart && (
@@ -74,10 +80,10 @@ export function ExerciseSuggestionList({
                 </h4>
                 <div className="flex gap-2 mt-1">
                   <Badge variant="secondary" className="text-xs capitalize">
-                    {exercise.bodyPart}
+                    {exercise.bodyPart || "Other"}
                   </Badge>
                   <Badge variant="secondary" className="text-xs capitalize">
-                    {exercise.equipment}
+                    {exercise.equipment || "Bodyweight"}
                   </Badge>
                 </div>
                 {exercise.instructions && exercise.instructions.length > 0 && (

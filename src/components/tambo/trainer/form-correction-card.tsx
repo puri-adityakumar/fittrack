@@ -12,11 +12,11 @@ const correctionItemSchema = z.object({
 });
 
 export const formCorrectionCardSchema = z.object({
-  exerciseName: z.string().describe("Name of the exercise"),
-  overallAssessment: z.string().describe("Overall assessment of the user's form"),
-  corrections: z.array(correctionItemSchema).describe("List of form corrections"),
-  doList: z.array(z.string()).describe("Things to do correctly"),
-  dontList: z.array(z.string()).describe("Things to avoid"),
+  exerciseName: z.string().optional().describe("Name of the exercise"),
+  overallAssessment: z.string().optional().describe("Overall assessment of the user's form"),
+  corrections: z.array(correctionItemSchema).optional().describe("List of form corrections"),
+  doList: z.array(z.string()).optional().describe("Things to do correctly"),
+  dontList: z.array(z.string()).optional().describe("Things to avoid"),
 });
 
 type FormCorrectionCardProps = z.infer<typeof formCorrectionCardSchema>;
@@ -40,19 +40,25 @@ export function FormCorrectionCard({
   doList,
   dontList,
 }: FormCorrectionCardProps) {
+  const resolvedExerciseName = exerciseName ?? "Exercise";
+  const resolvedAssessment = overallAssessment ?? "Form review";
+  const resolvedCorrections = corrections ?? [];
+  const resolvedDoList = doList ?? [];
+  const resolvedDontList = dontList ?? [];
+
   return (
     <Card className="w-full max-w-lg">
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl">Form Check: {exerciseName}</CardTitle>
-        <p className="text-sm text-muted-foreground mt-1">{overallAssessment}</p>
+        <CardTitle className="text-xl">Form Check: {resolvedExerciseName}</CardTitle>
+        <p className="text-sm text-muted-foreground mt-1">{resolvedAssessment}</p>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Corrections */}
-        {corrections.length > 0 && (
+        {resolvedCorrections.length > 0 && (
           <div className="space-y-2">
             <h4 className="font-medium text-sm">Corrections Needed</h4>
             <div className="space-y-2">
-              {corrections.map((correction, index) => (
+              {resolvedCorrections.map((correction, index) => (
                 <div
                   key={index}
                   className={`p-3 rounded-lg ${importanceColors[correction.importance]}`}
@@ -79,7 +85,7 @@ export function FormCorrectionCard({
               Do
             </h4>
             <ul className="space-y-1">
-              {doList.map((item, index) => (
+              {resolvedDoList.map((item, index) => (
                 <li
                   key={index}
                   className="text-xs text-muted-foreground flex items-start gap-1"
@@ -98,7 +104,7 @@ export function FormCorrectionCard({
               Don&apos;t
             </h4>
             <ul className="space-y-1">
-              {dontList.map((item, index) => (
+              {resolvedDontList.map((item, index) => (
                 <li
                   key={index}
                   className="text-xs text-muted-foreground flex items-start gap-1"

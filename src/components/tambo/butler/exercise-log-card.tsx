@@ -6,12 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dumbbell, Calendar, Weight } from "lucide-react";
 
 export const exerciseLogCardSchema = z.object({
-  exerciseName: z.string().describe("Name of the exercise"),
+  exerciseName: z.string().optional().describe("Name of the exercise"),
   sets: z.number().describe("Number of sets"),
   reps: z.number().describe("Number of reps per set"),
   weight: z.number().optional().describe("Weight in kg"),
   duration: z.number().optional().describe("Duration in minutes"),
-  date: z.string().describe("Date of the exercise"),
+  date: z.string().optional().describe("Date of the exercise"),
   notes: z.string().optional().describe("Additional notes"),
 });
 
@@ -26,6 +26,8 @@ export function ExerciseLogCard({
   date,
   notes,
 }: ExerciseLogCardProps) {
+  const resolvedName = exerciseName ?? "Exercise";
+  const resolvedDate = date ?? new Date().toISOString().split("T")[0];
   const formatDate = (dateStr: string) => {
     const today = new Date().toISOString().split("T")[0];
     if (dateStr === today) return "Today";
@@ -41,11 +43,11 @@ export function ExerciseLogCard({
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Dumbbell className="h-5 w-5 text-primary" />
-            {exerciseName}
+            {resolvedName}
           </CardTitle>
           <Badge variant="secondary" className="text-xs">
             <Calendar className="h-3 w-3 mr-1" />
-            {formatDate(date)}
+            {formatDate(resolvedDate)}
           </Badge>
         </div>
       </CardHeader>

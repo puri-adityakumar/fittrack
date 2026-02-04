@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dumbbell, Flame, Target } from "lucide-react";
 
 export const dailyProgressCardSchema = z.object({
-  date: z.string().describe("Date for the progress"),
+  date: z.string().optional().describe("Date for the progress"),
   exerciseCount: z.number().describe("Number of exercises completed"),
   totalCalories: z.number().describe("Total calories consumed"),
   totalProtein: z.number().describe("Total protein in grams"),
@@ -26,6 +26,7 @@ export function DailyProgressCard({
   totalFat,
   calorieTarget,
 }: DailyProgressCardProps) {
+  const resolvedDate = date ?? new Date().toISOString().split("T")[0];
   const calorieProgress = Math.min((totalCalories / calorieTarget) * 100, 100);
   const caloriesRemaining = Math.max(calorieTarget - totalCalories, 0);
 
@@ -44,7 +45,7 @@ export function DailyProgressCard({
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <Target className="h-5 w-5 text-primary" />
-          {formatDate(date)}
+          {formatDate(resolvedDate)}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

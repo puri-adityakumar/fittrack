@@ -14,11 +14,11 @@ const exerciseInPlanSchema = z.object({
 });
 
 export const workoutPlanCardSchema = z.object({
-  planName: z.string().describe("Name of the workout plan"),
+  planName: z.string().optional().describe("Name of the workout plan"),
   description: z.string().optional().describe("Description of the plan"),
   targetGoal: z.string().optional().describe("Target fitness goal"),
   estimatedDuration: z.number().optional().describe("Estimated workout duration in minutes"),
-  exercises: z.array(exerciseInPlanSchema).describe("List of exercises in the plan"),
+  exercises: z.array(exerciseInPlanSchema).optional().describe("List of exercises in the plan"),
 });
 
 type WorkoutPlanCardProps = z.infer<typeof workoutPlanCardSchema>;
@@ -30,14 +30,16 @@ export function WorkoutPlanCard({
   estimatedDuration,
   exercises,
 }: WorkoutPlanCardProps) {
-  const totalSets = exercises.reduce((acc, ex) => acc + ex.sets, 0);
+  const resolvedPlanName = planName ?? "Workout Plan";
+  const resolvedExercises = exercises ?? [];
+  const totalSets = resolvedExercises.reduce((acc, ex) => acc + ex.sets, 0);
 
   return (
     <Card className="w-full max-w-lg">
       <CardHeader className="pb-3">
         <CardTitle className="text-xl flex items-center gap-2">
           <ClipboardList className="h-6 w-6 text-primary" />
-          {planName}
+          {resolvedPlanName}
         </CardTitle>
         {description && (
           <p className="text-sm text-muted-foreground mt-1">{description}</p>
@@ -56,13 +58,13 @@ export function WorkoutPlanCard({
           )}
           <Badge variant="outline" className="text-xs">
             <Dumbbell className="h-3 w-3 mr-1" />
-            {exercises.length} exercises • {totalSets} sets
+            {resolvedExercises.length} exercises • {totalSets} sets
           </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {exercises.map((exercise, index) => (
+          {resolvedExercises.map((exercise, index) => (
             <div
               key={index}
               className="flex items-center justify-between p-3 bg-muted rounded-lg"
