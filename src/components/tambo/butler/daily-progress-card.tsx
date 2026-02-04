@@ -7,12 +7,12 @@ import { Dumbbell, Flame, Target } from "lucide-react";
 
 export const dailyProgressCardSchema = z.object({
   date: z.string().optional().describe("Date for the progress"),
-  exerciseCount: z.number().describe("Number of exercises completed"),
-  totalCalories: z.number().describe("Total calories consumed"),
-  totalProtein: z.number().describe("Total protein in grams"),
-  totalCarbs: z.number().describe("Total carbs in grams"),
-  totalFat: z.number().describe("Total fat in grams"),
-  calorieTarget: z.number().describe("Daily calorie target"),
+  exerciseCount: z.number().optional().describe("Number of exercises completed"),
+  totalCalories: z.number().optional().describe("Total calories consumed"),
+  totalProtein: z.number().optional().describe("Total protein in grams"),
+  totalCarbs: z.number().optional().describe("Total carbs in grams"),
+  totalFat: z.number().optional().describe("Total fat in grams"),
+  calorieTarget: z.number().optional().describe("Daily calorie target"),
 });
 
 type DailyProgressCardProps = z.infer<typeof dailyProgressCardSchema>;
@@ -27,8 +27,17 @@ export function DailyProgressCard({
   calorieTarget,
 }: DailyProgressCardProps) {
   const resolvedDate = date ?? new Date().toISOString().split("T")[0];
-  const calorieProgress = Math.min((totalCalories / calorieTarget) * 100, 100);
-  const caloriesRemaining = Math.max(calorieTarget - totalCalories, 0);
+  const resolvedExerciseCount = exerciseCount ?? 0;
+  const resolvedTotalCalories = totalCalories ?? 0;
+  const resolvedTotalProtein = totalProtein ?? 0;
+  const resolvedTotalCarbs = totalCarbs ?? 0;
+  const resolvedTotalFat = totalFat ?? 0;
+  const resolvedCalorieTarget = calorieTarget ?? 2000;
+  
+  const calorieProgress = resolvedCalorieTarget > 0 
+    ? Math.min((resolvedTotalCalories / resolvedCalorieTarget) * 100, 100) 
+    : 0;
+  const caloriesRemaining = Math.max(resolvedCalorieTarget - resolvedTotalCalories, 0);
 
   const formatDate = (dateStr: string) => {
     const today = new Date().toISOString().split("T")[0];
@@ -55,7 +64,7 @@ export function DailyProgressCard({
             <Dumbbell className="h-5 w-5 text-primary" />
             <span className="font-medium">Exercises</span>
           </div>
-          <span className="text-2xl font-bold">{exerciseCount}</span>
+          <span className="text-2xl font-bold">{resolvedExerciseCount}</span>
         </div>
 
         {/* Calorie Progress */}
@@ -66,7 +75,7 @@ export function DailyProgressCard({
               <span className="font-medium">Calories</span>
             </div>
             <span className="text-sm text-muted-foreground">
-              {totalCalories} / {calorieTarget}
+              {resolvedTotalCalories} / {resolvedCalorieTarget}
             </span>
           </div>
           <Progress value={calorieProgress} className="h-3" />
@@ -81,19 +90,19 @@ export function DailyProgressCard({
         <div className="grid grid-cols-3 gap-2">
           <div className="flex flex-col items-center p-2 bg-blue-50 dark:bg-blue-950 rounded-md">
             <span className="text-lg font-semibold text-blue-600">
-              {totalProtein}g
+              {resolvedTotalProtein}g
             </span>
             <span className="text-xs text-muted-foreground">Protein</span>
           </div>
           <div className="flex flex-col items-center p-2 bg-amber-50 dark:bg-amber-950 rounded-md">
             <span className="text-lg font-semibold text-amber-600">
-              {totalCarbs}g
+              {resolvedTotalCarbs}g
             </span>
             <span className="text-xs text-muted-foreground">Carbs</span>
           </div>
           <div className="flex flex-col items-center p-2 bg-red-50 dark:bg-red-950 rounded-md">
             <span className="text-lg font-semibold text-red-600">
-              {totalFat}g
+              {resolvedTotalFat}g
             </span>
             <span className="text-xs text-muted-foreground">Fat</span>
           </div>

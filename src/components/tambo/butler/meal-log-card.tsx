@@ -7,12 +7,12 @@ import { Utensils, Flame } from "lucide-react";
 
 export const mealLogCardSchema = z.object({
   foodName: z.string().optional().describe("Name/description of the food"),
-  mealType: z.enum(["breakfast", "lunch", "dinner", "snack"]).describe("Type of meal"),
+  mealType: z.enum(["breakfast", "lunch", "dinner", "snack"]).optional().describe("Type of meal"),
   quantity: z.string().optional().describe("Quantity description"),
-  calories: z.number().describe("Calories"),
-  protein: z.number().describe("Protein in grams"),
-  carbs: z.number().describe("Carbohydrates in grams"),
-  fat: z.number().describe("Fat in grams"),
+  calories: z.number().optional().describe("Calories"),
+  protein: z.number().optional().describe("Protein in grams"),
+  carbs: z.number().optional().describe("Carbohydrates in grams"),
+  fat: z.number().optional().describe("Fat in grams"),
   date: z.string().optional().describe("Date of the meal"),
 });
 
@@ -43,7 +43,13 @@ export function MealLogCard({
   date,
 }: MealLogCardProps) {
   const resolvedFoodName = foodName ?? "Meal";
+  const resolvedMealType = mealType ?? "snack";
   const resolvedDate = date ?? new Date().toISOString().split("T")[0];
+  const resolvedCalories = calories ?? 0;
+  const resolvedProtein = protein ?? 0;
+  const resolvedCarbs = carbs ?? 0;
+  const resolvedFat = fat ?? 0;
+
   const formatDate = (dateStr: string) => {
     const today = new Date().toISOString().split("T")[0];
     if (dateStr === today) return "Today";
@@ -59,7 +65,7 @@ export function MealLogCard({
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Utensils className="h-5 w-5 text-primary" />
-            {mealTypeEmoji[mealType]} {mealTypeLabel[mealType]}
+            {mealTypeEmoji[resolvedMealType]} {mealTypeLabel[resolvedMealType]}
           </CardTitle>
           <Badge variant="secondary" className="text-xs">
             {formatDate(resolvedDate)}
@@ -73,20 +79,20 @@ export function MealLogCard({
       <CardContent>
         <div className="flex items-center gap-2 mb-3">
           <Flame className="h-4 w-4 text-orange-500" />
-          <span className="text-xl font-bold">{calories}</span>
+          <span className="text-xl font-bold">{resolvedCalories}</span>
           <span className="text-sm text-muted-foreground">calories</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           <div className="flex flex-col items-center p-2 bg-blue-50 dark:bg-blue-950 rounded-md">
-            <span className="text-lg font-semibold text-blue-600">{protein}g</span>
+            <span className="text-lg font-semibold text-blue-600">{resolvedProtein}g</span>
             <span className="text-xs text-muted-foreground">Protein</span>
           </div>
           <div className="flex flex-col items-center p-2 bg-amber-50 dark:bg-amber-950 rounded-md">
-            <span className="text-lg font-semibold text-amber-600">{carbs}g</span>
+            <span className="text-lg font-semibold text-amber-600">{resolvedCarbs}g</span>
             <span className="text-xs text-muted-foreground">Carbs</span>
           </div>
           <div className="flex flex-col items-center p-2 bg-red-50 dark:bg-red-950 rounded-md">
-            <span className="text-lg font-semibold text-red-600">{fat}g</span>
+            <span className="text-lg font-semibold text-red-600">{resolvedFat}g</span>
             <span className="text-xs text-muted-foreground">Fat</span>
           </div>
         </div>

@@ -7,8 +7,8 @@ import { Dumbbell, Calendar, Weight } from "lucide-react";
 
 export const exerciseLogCardSchema = z.object({
   exerciseName: z.string().optional().describe("Name of the exercise"),
-  sets: z.number().describe("Number of sets"),
-  reps: z.number().describe("Number of reps per set"),
+  sets: z.number().optional().describe("Number of sets"),
+  reps: z.number().optional().describe("Number of reps per set"),
   weight: z.number().optional().describe("Weight in kg"),
   duration: z.number().optional().describe("Duration in minutes"),
   date: z.string().optional().describe("Date of the exercise"),
@@ -28,6 +28,8 @@ export function ExerciseLogCard({
 }: ExerciseLogCardProps) {
   const resolvedName = exerciseName ?? "Exercise";
   const resolvedDate = date ?? new Date().toISOString().split("T")[0];
+  const resolvedSets = sets ?? 3;
+  const resolvedReps = reps ?? 10;
   const formatDate = (dateStr: string) => {
     const today = new Date().toISOString().split("T")[0];
     if (dateStr === today) return "Today";
@@ -54,12 +56,12 @@ export function ExerciseLogCard({
       <CardContent>
         <div className="flex items-center gap-4 text-sm">
           <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-            <span className="text-2xl font-bold text-primary">{sets}</span>
+            <span className="text-2xl font-bold text-primary">{resolvedSets}</span>
             <span className="text-xs text-muted-foreground">sets</span>
           </div>
           <span className="text-muted-foreground">×</span>
           <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-            <span className="text-2xl font-bold text-primary">{reps}</span>
+            <span className="text-2xl font-bold text-primary">{resolvedReps}</span>
             <span className="text-xs text-muted-foreground">reps</span>
           </div>
           {weight && (

@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 
 const correctionItemSchema = z.object({
-  issue: z.string().describe("The form issue to correct"),
-  correction: z.string().describe("How to correct the issue"),
-  importance: z.enum(["critical", "important", "minor"]).describe("Importance level"),
+  issue: z.string().optional().describe("The form issue to correct"),
+  correction: z.string().optional().describe("How to correct the issue"),
+  importance: z.enum(["critical", "important", "minor"]).optional().describe("Importance level"),
 });
 
 export const formCorrectionCardSchema = z.object({
@@ -58,20 +58,23 @@ export function FormCorrectionCard({
           <div className="space-y-2">
             <h4 className="font-medium text-sm">Corrections Needed</h4>
             <div className="space-y-2">
-              {resolvedCorrections.map((correction, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg ${importanceColors[correction.importance]}`}
-                >
-                  <div className="flex items-start gap-2">
-                    {importanceIcons[correction.importance]}
-                    <div>
-                      <p className="font-medium text-sm">{correction.issue}</p>
-                      <p className="text-sm mt-1">{correction.correction}</p>
+              {resolvedCorrections.map((correction, index) => {
+                const importance = correction.importance ?? "important";
+                return (
+                  <div
+                    key={index}
+                    className={`p-3 rounded-lg ${importanceColors[importance]}`}
+                  >
+                    <div className="flex items-start gap-2">
+                      {importanceIcons[importance]}
+                      <div>
+                        <p className="font-medium text-sm">{correction.issue ?? "Form issue"}</p>
+                        <p className="text-sm mt-1">{correction.correction ?? "Correction needed"}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

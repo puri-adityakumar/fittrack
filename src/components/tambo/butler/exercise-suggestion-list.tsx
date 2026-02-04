@@ -7,7 +7,7 @@ import { Dumbbell, Target } from "lucide-react";
 
 const exerciseSchema = z.object({
   id: z.string().optional().describe("Exercise ID from ExerciseDB"),
-  name: z.string().describe("Exercise name"),
+  name: z.string().optional().describe("Exercise name"),
   bodyPart: z.string().optional().describe("Target body part"),
   equipment: z.string().optional().describe("Required equipment"),
   gifUrl: z.string().optional().describe("GIF URL showing the exercise"),
@@ -66,7 +66,7 @@ export function ExerciseSuggestionList({
               {exercise.gifUrl ? (
                 <img
                   src={exercise.gifUrl}
-                  alt={exercise.name}
+                  alt={exercise.name ?? "Exercise"}
                   className="w-16 h-16 rounded object-cover"
                 />
               ) : (
@@ -76,7 +76,7 @@ export function ExerciseSuggestionList({
               )}
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium text-sm capitalize">
-                  {exercise.name}
+                  {exercise.name ?? "Exercise"}
                 </h4>
                 <div className="flex gap-2 mt-1">
                   <Badge variant="secondary" className="text-xs capitalize">

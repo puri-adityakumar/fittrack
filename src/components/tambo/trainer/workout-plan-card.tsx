@@ -6,10 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { ClipboardList, Clock, Dumbbell } from "lucide-react";
 
 const exerciseInPlanSchema = z.object({
-  name: z.string().describe("Exercise name"),
-  sets: z.number().describe("Number of sets"),
-  reps: z.number().describe("Number of reps"),
-  restSeconds: z.number().describe("Rest time between sets in seconds"),
+  name: z.string().optional().describe("Exercise name"),
+  sets: z.number().optional().describe("Number of sets"),
+  reps: z.number().optional().describe("Number of reps"),
+  restSeconds: z.number().optional().describe("Rest time between sets in seconds"),
   notes: z.string().optional().describe("Additional notes for this exercise"),
 });
 
@@ -32,7 +32,7 @@ export function WorkoutPlanCard({
 }: WorkoutPlanCardProps) {
   const resolvedPlanName = planName ?? "Workout Plan";
   const resolvedExercises = exercises ?? [];
-  const totalSets = resolvedExercises.reduce((acc, ex) => acc + ex.sets, 0);
+  const totalSets = resolvedExercises.reduce((acc, ex) => acc + (ex.sets ?? 0), 0);
 
   return (
     <Card className="w-full max-w-lg">
@@ -74,7 +74,7 @@ export function WorkoutPlanCard({
                   {index + 1}
                 </span>
                 <div>
-                  <p className="font-medium text-sm capitalize">{exercise.name}</p>
+                  <p className="font-medium text-sm capitalize">{exercise.name ?? "Exercise"}</p>
                   {exercise.notes && (
                     <p className="text-xs text-muted-foreground">{exercise.notes}</p>
                   )}
@@ -82,10 +82,10 @@ export function WorkoutPlanCard({
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium">
-                  {exercise.sets} × {exercise.reps}
+                  {exercise.sets ?? 3} × {exercise.reps ?? 10}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {exercise.restSeconds}s rest
+                  {exercise.restSeconds ?? 60}s rest
                 </p>
               </div>
             </div>
